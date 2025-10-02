@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Hardware Practical Lesson Game 01</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom styles for draggable elements in Game 1 */
+        .draggable-item {
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+        .drop-target {
+            border: 2px dashed #cbd5e0; /* border-gray-300 */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .drop-target.hovered {
+            background-color: #e2e8f0; /* bg-gray-200 */
+            border-color: #90cdf4; /* border-blue-400 */
+        }
+        .drop-target.correct {
+            background-color: #d1fae5; /* bg-green-100 */
+            border-color: #34d399; /* border-green-400 */
+        }
+        .drop-target.incorrect {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-color: #ef4444; /* border-red-500 */
+        }
+
+        /* Custom styles for draggable elements in Game 2 (images) */
+        .image-draggable-item {
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem; /* rounded-lg */
+            width: 100px; /* Fixed width for image items */
+            height: 100px; /* Fixed height for image items */
+            object-fit: contain; /* Ensure image fits within bounds */
+        }
+        .image-draggable-item:active {
+            cursor: grabbing;
+        }
+        .image-drop-target {
+            border: 2px dashed #cbd5e0; /* border-gray-300 */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .image-drop-target.hovered {
+            background-color: #e2e8f0; /* bg-gray-200 */
+            border-color: #90cdf4; /* border-blue-400 */
+        }
+        .image-drop-target.correct {
+            background-color: #d1fae5; /* bg-green-100 */
+            border-color: #34d399; /* border-green-400 */
+        }
+        .image-drop-target.incorrect {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-color: #ef4444; /* border-red-500 */
+        }
+
+        /* Custom styles for draggable elements in Game 3 (cables) */
+        .cable-draggable-item {
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem;
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        .cable-draggable-item:active {
+            cursor: grabbing;
+        }
+        .cable-drop-target {
+            border: 2px dashed #a0aec0; /* border-gray-400 */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border-radius: 0.5rem;
+        }
+        .cable-drop-target.hovered {
+            background-color: #e2e8f0; /* bg-gray-200 */
+            border-color: #63b3ed; /* border-blue-300 */
+        }
+        .cable-drop-target.correct {
+            background-color: #d1fae5; /* bg-green-100 */
+            border-color: #34d399; /* border-green-400 */
+        }
+        .cable-drop-target.incorrect {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-color: #ef4444; /* border-red-500 */
+        }
+
+        /* Custom styles for draggable elements in Game 4 (motherboard parts) */
+        .mb-part-draggable-item {
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem;
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+        .mb-part-draggable-item:active {
+            cursor: grabbing;
+        }
+        .mb-part-drop-target {
+            border: 2px dashed #9ca3af; /* border-gray-400 */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border-radius: 0.5rem;
+        }
+        .mb-part-drop-target.hovered {
+            background-color: #e0e7ff; /* bg-indigo-100 */
+            border-color: #818cf8; /* border-indigo-400 */
+        }
+        .mb-part-drop-target.correct {
+            background-color: #dcfce7; /* bg-emerald-100 */
+            border-color: #34d399; /* border-emerald-400 */
+        }
+        .mb-part-drop-target.incorrect {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-color: #ef4444; /* border-red-500 */
+        }
+
+        /* Custom styles for draggable elements in Game 5 (hardware types) */
+        .hw-type-draggable-item {
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem;
+        }
+        .hw-type-draggable-item:active {
+            cursor: grabbing;
+        }
+        .hw-type-drop-target {
+            border: 2px dashed #a78bfa; /* border-purple-400 */
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border-radius: 0.5rem;
+        }
+        .hw-type-drop-target.hovered {
+            background-color: #ede9fe; /* bg-purple-100 */
+            border-color: #8b5cf6; /* border-purple-500 */
+        }
+        .hw-type-drop-target.correct {
+            background-color: #dcfce7; /* bg-emerald-100 */
+            border-color: #34d399; /* border-emerald-400 */
+        }
+        .hw-type-drop-target.incorrect {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-color: #ef4444; /* border-red-500 */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-xl shadow-2xl p-6 md:p-10 max-w-5xl w-full">
+
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2 leading-tight">
+                Computer Hardware Fundamentals 
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600">
+                A practical lesson Game for all students.
+            </p>
+            <div class="h-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full w-24 mx-auto mt-4"></div>
+        </header>
+
+        <!-- Lesson Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Core Components Explained</h2>
+
+            <!-- Motherboard -->
+            <div class="bg-blue-50 p-6 rounded-lg shadow-md mb-6 transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3">1. Motherboard</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    The Motherboard is often called the "central nervous system" of a computer. It's a large printed circuit board that connects all other hardware components, allowing them to communicate with each other. Key parts include the CPU socket, RAM slots, PCIe slots for expansion cards (like graphics cards), SATA ports for storage, and various headers for front panel connectors and USB ports. It provides the electrical pathways and logic that allow the CPU to interact with memory, storage, and peripherals.
+                </p>
+            </div>
+
+            <!-- RAM (Random Access Memory) -->
+            <div class="bg-green-50 p-6 rounded-lg shadow-md mb-6 transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-green-700 mb-3">2. RAM (Random Access Memory)</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    RAM is volatile memory used to store data that the CPU needs quick access to. When you open applications or files, their data is temporarily loaded into RAM. It's much faster than hard drives or SSDs but loses all its data when the computer is turned off. More RAM generally means your computer can handle more programs simultaneously and perform tasks faster, as it reduces the need to constantly load data from slower storage devices.
+                </p>
+            </div>
+
+            <!-- CPU (Central Processing Unit) -->
+            <div class="bg-yellow-50 p-6 rounded-lg shadow-md mb-6 transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-yellow-700 mb-3">3. CPU (Central Processing Unit)</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    The CPU, often referred to as the "brain" of the computer, is responsible for executing instructions, performing calculations, and managing the overall flow of data. It processes all the instructions from hardware and software, making it the most critical component for a computer's processing power. Modern CPUs have multiple "cores" to handle several tasks concurrently, significantly boosting performance.
+                </p>
+            </div>
+
+            <!-- Graphic Cards (GPU) -->
+            <div class="bg-red-50 p-6 rounded-lg shadow-md mb-6 transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-red-700 mb-3">4. Graphic Cards (GPU - Graphics Processing Unit)</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    A Graphics Card is a specialized electronic circuit designed to rapidly manipulate and alter memory to accelerate the creation of images in a frame buffer intended for output to a display device. While a CPU can perform similar tasks, a GPU is designed to perform parallel processing, making it highly efficient for rendering 3D graphics, video editing, and complex calculations required by gaming and scientific applications. Some CPUs have integrated graphics, but dedicated graphics cards offer superior performance.
+                </p>
+            </div>
+
+            <!-- Power Supply Unit (PSU) -->
+            <div class="bg-purple-50 p-6 rounded-lg shadow-md mb-6 transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-purple-700 mb-3">5. Power Supply Unit (PSU)</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    The Power Supply Unit (PSU) is responsible for converting the alternating current (AC) from the wall outlet into low-voltage direct current (DC) power that the computer's components can use. It supplies power to the motherboard, CPU, graphics card, hard drives, and all other internal components. A stable and adequately powerful PSU is crucial for the reliability and longevity of your computer system.
+                </p>
+            </div>
+
+            <!-- Storage Devices (HDD/SSD) -->
+            <div class="bg-orange-50 p-6 rounded-lg shadow-md mb-6 transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-orange-700 mb-3">6. Storage Devices (HDD/SSD)</h3>
+                <p class="text-700 leading-relaxed">
+                    Storage devices, such as Hard Disk Drives (HDDs) and Solid State Drives (SSDs), are used for long-term data storage. HDDs use spinning platters to store data magnetically, while SSDs use flash memory, offering much faster read/write speeds, lower power consumption, and greater durability. Both are essential for storing the operating system, applications, and user files permanently.
+                </p>
+            </div>
+
+            <!-- Cooling System (Heatsink/Fan) -->
+            <div class="bg-cyan-50 p-6 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
+                <h3 class="text-2xl font-semibold text-cyan-700 mb-3">7. Cooling System (Heatsink/Fan)</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    Modern computer components, especially the CPU and GPU, generate significant heat during operation. A cooling system, typically consisting of a heatsink and a fan (or liquid cooling solutions), is crucial for dissipating this heat to prevent overheating and thermal throttling. Effective cooling ensures stable performance and extends the lifespan of your hardware.
+                </p>
+            </div>
+        </section>
+
+        <!-- Game 1: Hardware Matching Game (Text-based) -->
+        <section class="mt-12 pt-8 border-t-2 border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Hardware Matching Game! (Text-to-Description)</h2>
+            <p class="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+                Drag each hardware component name to its correct description. Get them all right to complete the game!
+            </p>
+
+            <div id="game-area-1" class="flex flex-col lg:flex-row gap-8">
+                <!-- Draggable Components Column -->
+                <div id="draggable-components-1" class="w-full lg:w-1/3 p-6 bg-gray-50 rounded-lg shadow-inner flex flex-col items-center gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Component Names</h3>
+                    <!-- Draggable items will be populated here by JavaScript -->
+                </div>
+
+                <!-- Droppable Descriptions Column -->
+                <div id="droppable-descriptions-1" class="w-full lg:w-2/3 p-6 bg-white rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Descriptions</h3>
+                    <!-- Droppable targets will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
+                <button id="reset-button-1" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                    Reset Game 1
+                </button>
+                <div id="game-message-1" class="text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0"></div>
+            </div>
+        </section>
+
+        <!-- Game 2: Hardware Image Identification Game -->
+        <section class="mt-12 pt-8 border-t-2 border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Hardware Image Identification! (Image-to-Text)</h2>
+            <p class="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+                Drag the correct component name to each image.
+                <span class="font-bold text-red-500"></span>
+            </p>
+
+            <div id="game-area-2" class="flex flex-col lg:flex-row gap-8">
+                <!-- Draggable Component Names Column (for images) -->
+                <div id="image-draggable-names" class="w-full lg:w-1/3 p-6 bg-gray-50 rounded-lg shadow-inner flex flex-col items-center gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Component Names</h3>
+                    <!-- Draggable text names will be populated here by JavaScript -->
+                </div>
+
+                <!-- Droppable Image Targets Column -->
+                <div id="image-droppable-targets" class="w-full lg:w-2/3 p-6 bg-white rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 md:col-span-2 lg:col-span-3 mb-4 text-center">Component Images</h3>
+                    <!-- Droppable image targets will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
+                <button id="reset-button-2" class="bg-gradient-to-r from-blue-500 to-teal-600 hover:from-blue-600 hover:to-teal-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Reset Game 2
+                </button>
+                <div id="game-message-2" class="text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0"></div>
+            </div>
+        </section>
+
+        <!-- Game 3: Cable Connection Challenge -->
+        <section class="mt-12 pt-8 border-t-2 border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Cable Connection Challenge! (Image-to-Description)</h2>
+            <p class="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+                Drag each cable image to its correct description.
+                <span class="font-bold text-red-500"></span>
+            </p>
+
+            <div id="game-area-3" class="flex flex-col lg:flex-row gap-8">
+                <!-- Draggable Cable Images Column -->
+                <div id="draggable-cable-images" class="w-full lg:w-1/3 p-6 bg-gray-50 rounded-lg shadow-inner flex flex-row flex-wrap justify-center items-center gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 w-full text-center">Cable Images</h3>
+                    <!-- Draggable cable images will be populated here by JavaScript -->
+                </div>
+
+                <!-- Droppable Cable Descriptions Column -->
+                <div id="droppable-cable-descriptions" class="w-full lg:w-2/3 p-6 bg-white rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Cable Descriptions</h3>
+                    <!-- Droppable targets will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
+                <button id="reset-button-3" class="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300">
+                    Reset Game 3
+                </button>
+                <div id="game-message-3" class="text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0"></div>
+            </div>
+        </section>
+
+        <!-- Game 4: Motherboard Part Identifier -->
+        <section class="mt-12 pt-8 border-t-2 border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Motherboard Part Identifier! (Image-to-Description)</h2>
+            <p class="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+                Drag each motherboard part image to its correct description.
+                <span class="font-bold text-red-500"></span>
+            </p>
+
+            <div id="game-area-4" class="flex flex-col lg:flex-row gap-8">
+                <!-- Draggable Motherboard Part Images Column -->
+                <div id="draggable-mb-part-images" class="w-full lg:w-1/3 p-6 bg-gray-50 rounded-lg shadow-inner flex flex-row flex-wrap justify-center items-center gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 w-full text-center">Motherboard Part Images</h3>
+                    <!-- Draggable images will be populated here by JavaScript -->
+                </div>
+
+                <!-- Droppable Motherboard Part Descriptions Column -->
+                <div id="droppable-mb-part-descriptions" class="w-full lg:w-2/3 p-6 bg-white rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Part Descriptions</h3>
+                    <!-- Droppable targets will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
+                <button id="reset-button-4" class="bg-gradient-to-r from-indigo-500 to-purple-700 hover:from-indigo-600 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                    Reset Game 4
+                </button>
+                <div id="game-message-4" class="text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0"></div>
+            </div>
+        </section>
+
+        <!-- Game 5: Hardware Type Classifier -->
+        <section class="mt-12 pt-8 border-t-2 border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Hardware Type Classifier!</h2>
+            <p class="text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+                Drag each specific hardware type (e.g., DDR4 RAM, ATX Motherboard) to its correct category or description.
+            </p>
+
+            <div id="game-area-5" class="flex flex-col lg:flex-row gap-8">
+                <!-- Draggable Specific Types Column -->
+                <div id="draggable-types-5" class="w-full lg:w-1/3 p-6 bg-gray-50 rounded-lg shadow-inner flex flex-col items-center gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Specific Types</h3>
+                    <!-- Draggable items will be populated here by JavaScript -->
+                </div>
+
+                <!-- Droppable Category/Description Targets Column -->
+                <div id="droppable-categories-5" class="w-full lg:w-2/3 p-6 bg-white rounded-lg shadow-inner grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Category/Description</h3>
+                    <!-- Droppable targets will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center mt-8 gap-4">
+                <button id="reset-button-5" class="bg-gradient-to-r from-green-500 to-lime-600 hover:from-green-600 hover:to-lime-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
+                    Reset Game 5
+                </button>
+                <div id="game-message-5" class="text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Data for Game 1 (Text-to-Description)
+        const game1Components = [
+            { name: "Motherboard", description: "The main circuit board connecting all components and allowing communication." },
+            { name: "RAM", description: "Volatile memory for temporary storage of data actively used by the CPU, enabling fast access." },
+            { name: "CPU", description: "The 'brain' of the computer, executing instructions and performing calculations." },
+            { name: "Graphic Card", description: "A specialized unit for rendering images and accelerating visual output to a display." },
+            { name: "Power Supply Unit", description: "Converts AC power from the wall outlet into DC power usable by the computer components." }
+        ];
+
+        // Data for Game 2 (Image-to-Text) - Includes new components
+        const game2Components = [
+            { name: "Motherboard", imageUrl: "1.png" },
+            { name: "RAM", imageUrl: "2.jpg" },
+            { name: "CPU", imageUrl: "3.jpg" },
+            { name: "Graphic Card", imageUrl: "4.jpg" },
+            { name: "Power Supply Unit", imageUrl: "5.jpg" },
+            { name: "Storage Device", imageUrl: "6.jpg" },
+            { name: "Cooling System", imageUrl: "7.jpg" }
+        ];
+
+        // Data for Game 3 (Cable Connection Challenge)
+        const game3Cables = [
+            { name: "SATA Data Cable", imageUrl: "8.jpg", description: "Internal Data: Connects storage devices (HDDs/SSDs) to the motherboard for data transfer." },
+            { name: "24-pin ATX Power", imageUrl: "9.jpg", description: "Internal Power: Main power connector from PSU to motherboard." },
+            { name: "USB-A Cable", imageUrl: "10.jpg", description: "External Data: Universal connector for peripherals like mice, keyboards, and external drives." },
+            { name: "HDMI Cable", imageUrl: "11.jpeg", description: "External Data: Transfers high-definition video and audio from GPU to monitor." },
+            { name: "PCIe 6/8-pin Power", imageUrl: "12.jpg", description: "Internal Power: Supplies additional power to high-performance graphics cards." },
+            { name: "AC Power Cable", imageUrl: "13.jpg", description: "External Power: Connects the Power Supply Unit (PSU) to the wall outlet." },
+            { name: "SATA Power Cable", imageUrl: "14.jpg", description: "Internal Power: Provides power to SATA storage devices (HDDs/SSDs)." },
+            { name: "Ethernet Cable", imageUrl: "15.jpg", description: "External Data: Connects computers to networks (LAN/Internet) via RJ45." },
+            { name: "DisplayPort Cable", imageUrl: "16.jpg", description: "External Data: Digital display interface primarily for video, alternative to HDMI." },
+            { name: "8-pin EPS CPU Power", imageUrl: "17.jpg", description: "Internal Power: Dedicated power connector for the CPU on the motherboard." }
+        ];
+
+        // Data for Game 4 (Motherboard Part Identifier)
+        const game4MotherboardParts = [
+            { name: "CPU Socket", imageUrl: "18.jpg", description: "The interface on the motherboard that connects the CPU." },
+            { name: "RAM Slot", imageUrl: "19.jpg", description: "Where Random Access Memory (RAM) modules are inserted." },
+            { name: "PCIe Slot", imageUrl: "20.jpg", description: "Expansion slots for graphics cards, sound cards, and other peripherals." },
+            { name: "SATA Port", imageUrl: "21.jpg", description: "Connectors for storage devices like HDDs and SSDs." },
+            { name: "CMOS Battery", imageUrl: "22.jpg", description: "A small battery that retains BIOS settings and system time." },
+            { name: "Northbridge/PCH", imageUrl: "23.jpg", description: "The main chipset responsible for high-speed data flow (often integrated now)." },
+            { name: "USB Header", imageUrl: "24.jpg", description: "Internal connector for front panel USB ports." },
+            { name: "Front Panel Header", imageUrl: "25.png", description: "Pins for connecting the power button, reset switch, and indicator LEDs." },
+            { name: "LAN Port", imageUrl: "26.jpg", description: "Port for wired network connection (Ethernet)." },
+            { name: "Audio Jacks", imageUrl: "27.jpg", description: "Ports for connecting speakers, headphones, and microphones." }
+        ];
+
+        // Data for Game 5 (Hardware Type Classifier)
+        const game5Types = [
+            { type: "ATX Motherboard", category: "Standard desktop motherboard form factor, balances size and features." },
+            { type: "Micro-ATX Motherboard", category: "Smaller motherboard form factor, fewer expansion slots, compact builds." },
+            { type: "Mini-ITX Motherboard", category: "Very compact motherboard, ideal for small form factor PCs and HTPCs." },
+            { type: "DDR4 RAM", category: "Widely used RAM technology, 288-pin, current mainstream standard." },
+            { type: "DDR5 RAM", category: "Newer generation RAM, faster speeds and higher bandwidth than DDR4." },
+            { type: "SO-DIMM RAM", category: "Small Outline DIMM, compact RAM sticks primarily for laptops and mini-PCs." },
+            { type: "Intel Core i9", category: "High-performance Intel CPU, excellent for gaming and demanding applications." },
+            { type: "AMD Ryzen 9", category: "High-performance AMD CPU, known for strong multi-core processing power." },
+            { type: "Intel Core i5", category: "Mid-range Intel CPU, good balance of performance for general use and gaming." },
+            { type: "AMD Ryzen 5", category: "Mid-range AMD CPU, versatile choice for productivity and gaming." },
+            { type: "NVIDIA GeForce RTX", category: "High-end NVIDIA graphics card series, known for Ray Tracing and DLSS." },
+            { type: "AMD Radeon RX", category: "High-performance AMD graphics card series, strong competitor in gaming and creative tasks." },
+            { type: "Integrated Graphics", category: "Graphics processing built directly into the CPU, for basic display output without a dedicated GPU." }
+        ];
+
+
+        // --- Game 1 Variables ---
+        let draggedItem1 = null;
+        let correctMatches1 = 0;
+        const totalComponents1 = game1Components.length;
+        const draggableComponentsContainer1 = document.getElementById('draggable-components-1');
+        const droppableDescriptionsContainer1 = document.getElementById('droppable-descriptions-1');
+        const resetButton1 = document.getElementById('reset-button-1');
+        const gameMessage1 = document.getElementById('game-message-1');
+
+        // --- Game 2 Variables ---
+        let draggedItem2 = null;
+        let correctMatches2 = 0;
+        const totalComponents2 = game2Components.length;
+        const draggableNamesContainer2 = document.getElementById('image-draggable-names');
+        const droppableImagesContainer2 = document.getElementById('image-droppable-targets');
+        const resetButton2 = document.getElementById('reset-button-2');
+        const gameMessage2 = document.getElementById('game-message-2');
+
+        // --- Game 3 Variables ---
+        let draggedItem3 = null;
+        let correctMatches3 = 0;
+        const totalComponents3 = game3Cables.length;
+        const draggableCableImagesContainer3 = document.getElementById('draggable-cable-images');
+        const droppableCableDescriptionsContainer3 = document.getElementById('droppable-cable-descriptions');
+        const resetButton3 = document.getElementById('reset-button-3');
+        const gameMessage3 = document.getElementById('game-message-3');
+
+        // --- Game 4 Variables ---
+        let draggedItem4 = null;
+        let correctMatches4 = 0;
+        const totalComponents4 = game4MotherboardParts.length;
+        const draggableMbPartImagesContainer4 = document.getElementById('draggable-mb-part-images');
+        const droppableMbPartDescriptionsContainer4 = document.getElementById('droppable-mb-part-descriptions');
+        const resetButton4 = document.getElementById('reset-button-4');
+        const gameMessage4 = document.getElementById('game-message-4');
+
+        // --- Game 5 Variables ---
+        let draggedItem5 = null;
+        let correctMatches5 = 0;
+        const totalComponents5 = game5Types.length;
+        const draggableTypesContainer5 = document.getElementById('draggable-types-5');
+        const droppableCategoriesContainer5 = document.getElementById('droppable-categories-5');
+        const resetButton5 = document.getElementById('reset-button-5');
+        const gameMessage5 = document.getElementById('game-message-5');
+
+
+        /**
+         * Shuffles an array in place using the Fisher-Yates algorithm.
+         * @param {Array} array The array to shuffle.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
+
+        // --- Game 1 Functions ---
+        /**
+         * Initializes or resets Game 1 (Text-to-Description).
+         * Populates draggable component names and droppable description targets.
+         */
+        function initGame1() {
+            // Clear previous game elements
+            draggableComponentsContainer1.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 mb-4">Component Names</h3>';
+            droppableDescriptionsContainer1.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Descriptions</h3>';
+            gameMessage1.className = 'text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0';
+            gameMessage1.textContent = '';
+            correctMatches1 = 0;
+
+            // Create draggable component name elements
+            const shuffledComponentNames = game1Components.map(c => c.name);
+            shuffleArray(shuffledComponentNames); // Shuffle component names
+
+            shuffledComponentNames.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'draggable-item bg-white p-4 w-4/5 text-center shadow-md rounded-lg border border-gray-200 text-gray-800 text-lg font-medium';
+                item.textContent = name;
+                item.setAttribute('draggable', true);
+                item.id = `draggable1-${name.toLowerCase().replace(/\s/g, '-')}`; // Unique ID for each draggable item
+                item.dataset.componentName = name; // Store the actual component name
+
+                item.addEventListener('dragstart', dragStart1);
+                draggableComponentsContainer1.appendChild(item);
+            });
+
+            // Create droppable description targets
+            const shuffledDescriptions = [...game1Components]; // Create a copy to shuffle descriptions independently
+            shuffleArray(shuffledDescriptions); // Shuffle descriptions
+
+            shuffledDescriptions.forEach(component => {
+                const target = document.createElement('div');
+                target.className = 'drop-target bg-gray-50 p-4 min-h-[8rem] flex items-center justify-center text-center text-gray-600 leading-relaxed';
+                target.textContent = component.description;
+                target.id = `droppable1-${component.name.toLowerCase().replace(/\s/g, '-')}`; // ID matching the component name for easy lookup
+                target.dataset.correctComponent = component.name; // Store the correct component name for this description
+
+                target.addEventListener('dragover', dragOver1);
+                target.addEventListener('dragleave', dragLeave1);
+                target.addEventListener('drop', drop1);
+                droppableDescriptionsContainer1.appendChild(target);
+            });
+        }
+
+        /**
+         * Handles the start of a drag operation for Game 1.
+         * @param {DragEvent} event
+         */
+        function dragStart1(event) {
+            draggedItem1 = event.target;
+            event.dataTransfer.setData('text/plain', event.target.dataset.componentName); // Set data to be transferred
+            event.target.classList.add('opacity-50', 'border-blue-500'); // Visual feedback for dragging
+        }
+
+        /**
+         * Handles the drag over event for Game 1. Prevents default to allow dropping.
+         * @param {DragEvent} event
+         */
+        function dragOver1(event) {
+            event.preventDefault();
+            if (event.target.classList.contains('drop-target') && !event.target.classList.contains('correct')) {
+                event.target.classList.add('hovered');
+            }
+        }
+
+        /**
+         * Handles the drag leave event for Game 1. Removes hover visual feedback.
+         * @param {DragEvent} event
+         */
+        function dragLeave1(event) {
+            if (event.target.classList.contains('drop-target')) {
+                event.target.classList.remove('hovered');
+            }
+        }
+
+        /**
+         * Handles the drop event for Game 1. Checks if the match is correct.
+         * @param {DragEvent} event
+         */
+        function drop1(event) {
+            event.preventDefault();
+            const droppedTarget = event.target.closest('.drop-target'); // Ensure we target the drop zone itself
+
+            if (draggedItem1 && droppedTarget && !droppedTarget.classList.contains('correct')) {
+                droppedTarget.classList.remove('hovered');
+
+                const draggedComponentName = draggedItem1.dataset.componentName;
+                const correctComponentNameForTarget = droppedTarget.dataset.correctComponent;
+
+                if (draggedComponentName === correctComponentNameForTarget) {
+                    // Correct match
+                    droppedTarget.classList.add('correct');
+                    droppedTarget.textContent = `${draggedComponentName}: ${game1Components.find(c => c.name === droppedTarget.dataset.correctComponent).description}`;
+                    draggedItem1.remove(); // Remove the draggable item
+                    correctMatches1++;
+                    displayMessage(gameMessage1, 'Correct! Well done!', 'bg-green-100 text-green-700 border-green-400');
+
+                    if (correctMatches1 === totalComponents1) {
+                        displayMessage(gameMessage1, 'Congratulations! You matched all components in Game 1!', 'bg-blue-100 text-blue-700 border-blue-400');
+                    }
+                } else {
+                    // Incorrect match
+                    droppedTarget.classList.add('incorrect');
+                    setTimeout(() => {
+                        droppedTarget.classList.remove('incorrect'); // Remove incorrect feedback after a short delay
+                    }, 1000);
+                    displayMessage(gameMessage1, 'Incorrect. Try again!', 'bg-red-100 text-red-700 border-red-400');
+                }
+            }
+            if (draggedItem1) {
+                draggedItem1.classList.remove('opacity-50', 'border-blue-500'); // Reset visual feedback for dragged item
+            }
+            draggedItem1 = null; // Reset dragged item
+        }
+
+        // --- Game 2 Functions ---
+        /**
+         * Initializes or resets Game 2 (Image-to-Text).
+         * Populates draggable component names and droppable image targets.
+         */
+        function initGame2() {
+            // Clear previous game elements
+            draggableNamesContainer2.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 mb-4">Component Names</h3>';
+            droppableImagesContainer2.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 md:col-span-2 lg:col-span-3 mb-4 text-center">Component Images</h3>';
+            gameMessage2.className = 'text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0';
+            gameMessage2.textContent = '';
+            correctMatches2 = 0;
+
+            // Create draggable component name elements for Game 2
+            const shuffledComponentNames2 = game2Components.map(c => c.name);
+            shuffleArray(shuffledComponentNames2); // Shuffle component names
+
+            shuffledComponentNames2.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'draggable-item bg-white p-4 w-4/5 text-center shadow-md rounded-lg border border-gray-200 text-gray-800 text-lg font-medium';
+                item.textContent = name;
+                item.setAttribute('draggable', true);
+                item.id = `draggable2-${name.toLowerCase().replace(/\s/g, '-')}`; // Unique ID for each draggable item
+                item.dataset.componentName = name; // Store the actual component name
+
+                item.addEventListener('dragstart', dragStart2);
+                draggableNamesContainer2.appendChild(item);
+            });
+
+            // Create droppable image targets
+            const shuffledImages = [...game2Components]; // Create a copy to shuffle images independently
+            shuffleArray(shuffledImages); // Shuffle images
+
+            shuffledImages.forEach(component => {
+                const target = document.createElement('div');
+                target.className = 'image-drop-target bg-gray-50 p-4 flex flex-col items-center justify-center text-center rounded-lg';
+                target.id = `droppable2-${component.name.toLowerCase().replace(/\s/g, '-')}`; // ID matching the component name
+                target.dataset.correctComponent = component.name; // Store the correct component name for this image
+
+                const img = document.createElement('img');
+                img.src = component.imageUrl;
+                img.alt = component.name;
+                img.className = 'image-draggable-item w-24 h-24 mb-2 object-contain'; // Apply image styling
+                img.onerror = function() { this.src = `https://placehold.co/100x100/CCCCCC/666666?text=Error`; }; // Fallback for broken images
+
+                const label = document.createElement('div');
+                label.className = 'text-gray-600 font-medium text-sm mt-2';
+                label.textContent = 'Drag component name here'; // Initial placeholder text
+
+                target.appendChild(img);
+                target.appendChild(label);
+
+                target.addEventListener('dragover', dragOver2);
+                target.addEventListener('dragleave', dragLeave2);
+                target.addEventListener('drop', drop2);
+                droppableImagesContainer2.appendChild(target);
+            });
+        }
+
+        /**
+         * Handles the start of a drag operation for Game 2.
+         * @param {DragEvent} event
+         */
+        function dragStart2(event) {
+            draggedItem2 = event.target;
+            event.dataTransfer.setData('text/plain', event.target.dataset.componentName);
+            event.target.classList.add('opacity-50', 'border-blue-500');
+        }
+
+        /**
+         * Handles the drag over event for Game 2. Prevents default to allow dropping.
+         * @param {DragEvent} event
+         */
+        function dragOver2(event) {
+            event.preventDefault();
+            // Only allow dropping if the target is an image drop zone and it hasn't been correctly matched yet
+            if (event.target.closest('.image-drop-target') && !event.target.closest('.image-drop-target').classList.contains('correct')) {
+                event.target.closest('.image-drop-target').classList.add('hovered');
+            }
+        }
+
+        /**
+         * Handles the drag leave event for Game 2. Removes hover visual feedback.
+         * @param {DragEvent} event
+         */
+        function dragLeave2(event) {
+            if (event.target.closest('.image-drop-target')) {
+                event.target.closest('.image-drop-target').classList.remove('hovered');
+            }
+        }
+
+        /**
+         * Handles the drop event for Game 2. Checks if the match is correct.
+         * @param {DragEvent} event
+         */
+        function drop2(event) {
+            event.preventDefault();
+            const droppedTarget = event.target.closest('.image-drop-target');
+
+            if (draggedItem2 && droppedTarget && !droppedTarget.classList.contains('correct')) {
+                droppedTarget.classList.remove('hovered');
+
+                const draggedComponentName = draggedItem2.dataset.componentName;
+                const correctComponentNameForTarget = droppedTarget.dataset.correctComponent;
+
+                if (draggedComponentName === correctComponentNameForTarget) {
+                    // Correct match
+                    droppedTarget.classList.add('correct');
+                    // Find the label element within the dropped target and update its text
+                    const label = droppedTarget.querySelector('div');
+                    if (label) {
+                        label.textContent = draggedComponentName;
+                    }
+                    draggedItem2.remove(); // Remove the draggable text item
+                    correctMatches2++;
+                    displayMessage(gameMessage2, 'Correct! Image matched!', 'bg-green-100 text-green-700 border-green-400');
+
+                    if (correctMatches2 === totalComponents2) {
+                        displayMessage(gameMessage2, 'Excellent! You identified all components in Game 2!', 'bg-blue-100 text-blue-700 border-blue-400');
+                    }
+                } else {
+                    // Incorrect match
+                    droppedTarget.classList.add('incorrect');
+                    setTimeout(() => {
+                        droppedTarget.classList.remove('incorrect');
+                    }, 1000);
+                    displayMessage(gameMessage2, 'Incorrect. Try again!', 'bg-red-100 text-red-700 border-red-400');
+                }
+            }
+            if (draggedItem2) {
+                draggedItem2.classList.remove('opacity-50', 'border-blue-500');
+            }
+            draggedItem2 = null;
+        }
+
+        // --- Game 3 Functions (Cable Connection Challenge) ---
+        /**
+         * Initializes or resets Game 3 (Cable Connection Challenge).
+         * Populates draggable cable images and droppable description targets.
+         */
+        function initGame3() {
+            // Clear previous game elements
+            draggableCableImagesContainer3.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 mb-4 w-full text-center">Cable Images</h3>';
+            droppableCableDescriptionsContainer3.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Cable Descriptions</h3>';
+            gameMessage3.className = 'text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0';
+            gameMessage3.textContent = '';
+            correctMatches3 = 0;
+
+            // Create draggable cable image elements
+            const shuffledCables = [...game3Cables];
+            shuffleArray(shuffledCables); // Shuffle cable images
+
+            shuffledCables.forEach(cable => {
+                const item = document.createElement('img');
+                item.className = 'cable-draggable-item bg-white p-2 shadow-md rounded-lg border border-gray-200';
+                item.src = cable.imageUrl;
+                item.alt = cable.name;
+                item.setAttribute('draggable', true);
+                item.id = `draggable3-${cable.name.toLowerCase().replace(/\s/g, '-')}`;
+                item.dataset.cableName = cable.name; // Store the actual cable name
+
+                item.addEventListener('dragstart', dragStart3);
+                item.onerror = function() { this.src = `https://placehold.co/100x100/CCCCCC/666666?text=Error`; }; // Fallback for broken images
+                draggableCableImagesContainer3.appendChild(item);
+            });
+
+            // Create droppable cable description targets
+            const shuffledDescriptions = [...game3Cables];
+            shuffleArray(shuffledDescriptions); // Shuffle descriptions
+
+            shuffledDescriptions.forEach(cable => {
+                const target = document.createElement('div');
+                target.className = 'cable-drop-target bg-gray-50 p-4 min-h-[8rem] flex flex-col items-center justify-center text-center text-gray-600 leading-relaxed';
+                target.innerHTML = `<p class="mb-2 text-sm">${cable.description}</p><div class="text-sm text-gray-400 italic">Drag cable image here</div>`; // Initial placeholder text
+                target.id = `droppable3-${cable.name.toLowerCase().replace(/\s/g, '-')}`;
+                target.dataset.correctCable = cable.name; // Store the correct cable name for this description
+
+                target.addEventListener('dragover', dragOver3);
+                target.addEventListener('dragleave', dragLeave3);
+                target.addEventListener('drop', drop3);
+                droppableCableDescriptionsContainer3.appendChild(target);
+            });
+        }
+
+        /**
+         * Handles the start of a drag operation for Game 3.
+         * @param {DragEvent} event
+         */
+        function dragStart3(event) {
+            draggedItem3 = event.target;
+            event.dataTransfer.setData('text/plain', event.target.dataset.cableName);
+            event.target.classList.add('opacity-50', 'border-red-500');
+        }
+
+        /**
+         * Handles the drag over event for Game 3.
+         * @param {DragEvent} event
+         */
+        function dragOver3(event) {
+            event.preventDefault();
+            if (event.target.closest('.cable-drop-target') && !event.target.closest('.cable-drop-target').classList.contains('correct')) {
+                event.target.closest('.cable-drop-target').classList.add('hovered');
+            }
+        }
+
+        /**
+         * Handles the drag leave event for Game 3.
+         * @param {DragEvent} event
+         */
+        function dragLeave3(event) {
+            if (event.target.closest('.cable-drop-target')) {
+                event.target.closest('.cable-drop-target').classList.remove('hovered');
+            }
+        }
+
+        /**
+         * Handles the drop event for Game 3.
+         * @param {DragEvent} event
+         */
+        function drop3(event) {
+            event.preventDefault();
+            const droppedTarget = event.target.closest('.cable-drop-target');
+
+            if (draggedItem3 && droppedTarget && !droppedTarget.classList.contains('correct')) {
+                droppedTarget.classList.remove('hovered');
+
+                const draggedCableName = draggedItem3.dataset.cableName;
+                const correctCableNameForTarget = droppedTarget.dataset.correctCable;
+
+                if (draggedCableName === correctCableNameForTarget) {
+                    // Correct match
+                    droppedTarget.classList.add('correct');
+                    // Update content to show the cable name and remove the "drag here" prompt
+                    droppedTarget.innerHTML = `<img src="${draggedItem3.src}" alt="${draggedCableName}" class="w-16 h-16 object-contain mb-2 rounded-md"/><p class="text-gray-700 font-medium text-center">${draggedCableName}</p><p class="text-xs text-gray-500 mt-1">${game3Cables.find(c => c.name === draggedCableName).description}</p>`;
+                    draggedItem3.remove(); // Remove the draggable image
+                    correctMatches3++;
+                    displayMessage(gameMessage3, 'Correct! Cable identified!', 'bg-green-100 text-green-700 border-green-400');
+
+                    if (correctMatches3 === totalComponents3) {
+                        displayMessage(gameMessage3, 'Fantastic! You know your cables!', 'bg-blue-100 text-blue-700 border-blue-400');
+                    }
+                } else {
+                    // Incorrect match
+                    droppedTarget.classList.add('incorrect');
+                    setTimeout(() => {
+                        droppedTarget.classList.remove('incorrect');
+                    }, 1000);
+                    displayMessage(gameMessage3, 'Incorrect. Have another go!', 'bg-red-100 text-red-700 border-red-400');
+                }
+            }
+            if (draggedItem3) {
+                draggedItem3.classList.remove('opacity-50', 'border-red-500');
+            }
+            draggedItem3 = null;
+        }
+
+        // --- Game 4 Functions (Motherboard Part Identifier) ---
+        /**
+         * Initializes or resets Game 4 (Motherboard Part Identifier).
+         * Populates draggable motherboard part images and droppable description targets.
+         */
+        function initGame4() {
+            // Clear previous game elements
+            draggableMbPartImagesContainer4.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 mb-4 w-full text-center">Motherboard Part Images</h3>';
+            droppableMbPartDescriptionsContainer4.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Part Descriptions</h3>';
+            gameMessage4.className = 'text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0';
+            gameMessage4.textContent = '';
+            correctMatches4 = 0;
+
+            // Create draggable motherboard part image elements
+            const shuffledMbParts = [...game4MotherboardParts];
+            shuffleArray(shuffledMbParts); // Shuffle motherboard parts
+
+            shuffledMbParts.forEach(part => {
+                const item = document.createElement('img');
+                item.className = 'mb-part-draggable-item bg-white p-2 shadow-md rounded-lg border border-gray-200';
+                item.src = part.imageUrl;
+                item.alt = part.name;
+                item.setAttribute('draggable', true);
+                item.id = `draggable4-${part.name.toLowerCase().replace(/\s/g, '-')}`;
+                item.dataset.partName = part.name; // Store the actual part name
+
+                item.addEventListener('dragstart', dragStart4);
+                item.onerror = function() { this.src = `https://placehold.co/100x100/CCCCCC/666666?text=Error`; }; // Fallback for broken images
+                draggableMbPartImagesContainer4.appendChild(item);
+            });
+
+            // Create droppable motherboard part description targets
+            const shuffledDescriptions = [...game4MotherboardParts];
+            shuffleArray(shuffledDescriptions); // Shuffle descriptions
+
+            shuffledDescriptions.forEach(part => {
+                const target = document.createElement('div');
+                target.className = 'mb-part-drop-target bg-gray-50 p-4 min-h-[8rem] flex flex-col items-center justify-center text-center text-gray-600 leading-relaxed';
+                target.innerHTML = `<p class="mb-2 text-sm">${part.description}</p><div class="text-sm text-gray-400 italic">Drag part image here</div>`; // Initial placeholder text
+                target.id = `droppable4-${part.name.toLowerCase().replace(/\s/g, '-')}`;
+                target.dataset.correctPart = part.name; // Store the correct part name for this description
+
+                target.addEventListener('dragover', dragOver4);
+                target.addEventListener('dragleave', dragLeave4);
+                target.addEventListener('drop', drop4);
+                droppableMbPartDescriptionsContainer4.appendChild(target);
+            });
+        }
+
+        /**
+         * Handles the start of a drag operation for Game 4.
+         * @param {DragEvent} event
+         */
+        function dragStart4(event) {
+            draggedItem4 = event.target;
+            event.dataTransfer.setData('text/plain', event.target.dataset.partName);
+            event.target.classList.add('opacity-50', 'border-indigo-500');
+        }
+
+        /**
+         * Handles the drag over event for Game 4.
+         * @param {DragEvent} event
+         */
+        function dragOver4(event) {
+            event.preventDefault();
+            if (event.target.closest('.mb-part-drop-target') && !event.target.closest('.mb-part-drop-target').classList.contains('correct')) {
+                event.target.closest('.mb-part-drop-target').classList.add('hovered');
+            }
+        }
+
+        /**
+         * Handles the drag leave event for Game 4.
+         * @param {DragEvent} event
+         */
+        function dragLeave4(event) {
+            if (event.target.closest('.mb-part-drop-target')) {
+                event.target.closest('.mb-part-drop-target').classList.remove('hovered');
+            }
+        }
+
+        /**
+         * Handles the drop event for Game 4.
+         * @param {DragEvent} event
+         */
+        function drop4(event) {
+            event.preventDefault();
+            const droppedTarget = event.target.closest('.mb-part-drop-target');
+
+            if (draggedItem4 && droppedTarget && !droppedTarget.classList.contains('correct')) {
+                droppedTarget.classList.remove('hovered');
+
+                const draggedPartName = draggedItem4.dataset.partName;
+                const correctPartNameForTarget = droppedTarget.dataset.correctPart;
+
+                if (draggedPartName === correctPartNameForTarget) {
+                    // Correct match
+                    droppedTarget.classList.add('correct');
+                    // Update content to show the part name and remove the "drag here" prompt
+                    droppedTarget.innerHTML = `<img src="${draggedItem4.src}" alt="${draggedPartName}" class="w-16 h-16 object-contain mb-2 rounded-md"/><p class="text-gray-700 font-medium text-center">${draggedPartName}</p><p class="text-xs text-gray-500 mt-1">${game4MotherboardParts.find(p => p.name === draggedPartName).description}</p>`;
+                    draggedItem4.remove(); // Remove the draggable image
+                    correctMatches4++;
+                    displayMessage(gameMessage4, 'Correct! Motherboard part identified!', 'bg-green-100 text-green-700 border-green-400');
+
+                    if (correctMatches4 === totalComponents4) {
+                        displayMessage(gameMessage4, 'Fantastic! You know your motherboard parts!', 'bg-blue-100 text-blue-700 border-blue-400');
+                    }
+                } else {
+                    // Incorrect match
+                    droppedTarget.classList.add('incorrect');
+                    setTimeout(() => {
+                        droppedTarget.classList.remove('incorrect');
+                    }, 1000);
+                    displayMessage(gameMessage4, 'Incorrect. Try again!', 'bg-red-100 text-red-700 border-red-400');
+                }
+            }
+            if (draggedItem4) {
+                draggedItem4.classList.remove('opacity-50', 'border-indigo-500');
+            }
+            draggedItem4 = null;
+        }
+
+        // --- Game 5 Functions (Hardware Type Classifier) ---
+        /**
+         * Initializes or resets Game 5 (Hardware Type Classifier).
+         * Populates draggable specific hardware types and droppable category descriptions.
+         */
+        function initGame5() {
+            // Clear previous game elements
+            draggableTypesContainer5.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 mb-4">Specific Types</h3>';
+            droppableCategoriesContainer5.innerHTML = '<h3 class="text-xl font-semibold text-gray-700 md:col-span-2 mb-4 text-center">Category/Description</h3>';
+            gameMessage5.className = 'text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0';
+            gameMessage5.textContent = '';
+            correctMatches5 = 0;
+
+            // Create draggable specific type elements
+            const shuffledTypes = game5Types.map(c => c.type);
+            shuffleArray(shuffledTypes); // Shuffle specific types
+
+            shuffledTypes.forEach(type => {
+                const item = document.createElement('div');
+                item.className = 'hw-type-draggable-item bg-white p-4 w-4/5 text-center shadow-md rounded-lg border border-gray-200 text-gray-800 text-lg font-medium';
+                item.textContent = type;
+                item.setAttribute('draggable', true);
+                item.id = `draggable5-${type.toLowerCase().replace(/\s/g, '-').replace(/\//g, '_')}`; // Unique ID
+                item.dataset.hardwareType = type; // Store the actual type name
+
+                item.addEventListener('dragstart', dragStart5);
+                draggableTypesContainer5.appendChild(item);
+            });
+
+            // Create droppable category/description targets
+            const shuffledCategories = [...game5Types]; // Create a copy to shuffle categories independently
+            shuffleArray(shuffledCategories); // Shuffle categories
+
+            shuffledCategories.forEach(itemData => {
+                const target = document.createElement('div');
+                target.className = 'hw-type-drop-target bg-gray-50 p-4 min-h-[8rem] flex items-center justify-center text-center text-gray-600 leading-relaxed';
+                target.textContent = itemData.category;
+                target.id = `droppable5-${itemData.type.toLowerCase().replace(/\s/g, '-').replace(/\//g, '_')}`; // ID matching the type name
+                target.dataset.correctHardwareType = itemData.type; // Store the correct type name for this description
+
+                target.addEventListener('dragover', dragOver5);
+                target.addEventListener('dragleave', dragLeave5);
+                target.addEventListener('drop', drop5);
+                droppableCategoriesContainer5.appendChild(target);
+            });
+        }
+
+        /**
+         * Handles the start of a drag operation for Game 5.
+         * @param {DragEvent} event
+         */
+        function dragStart5(event) {
+            draggedItem5 = event.target;
+            event.dataTransfer.setData('text/plain', event.target.dataset.hardwareType);
+            event.target.classList.add('opacity-50', 'border-purple-500');
+        }
+
+        /**
+         * Handles the drag over event for Game 5. Prevents default to allow dropping.
+         * @param {DragEvent} event
+         */
+        function dragOver5(event) {
+            event.preventDefault();
+            if (event.target.classList.contains('hw-type-drop-target') && !event.target.classList.contains('correct')) {
+                event.target.classList.add('hovered');
+            }
+        }
+
+        /**
+         * Handles the drag leave event for Game 5. Removes hover visual feedback.
+         * @param {DragEvent} event
+         */
+        function dragLeave5(event) {
+            if (event.target.classList.contains('hw-type-drop-target')) {
+                event.target.classList.remove('hovered');
+            }
+        }
+
+        /**
+         * Handles the drop event for Game 5. Checks if the match is correct.
+         * @param {DragEvent} event
+         */
+        function drop5(event) {
+            event.preventDefault();
+            const droppedTarget = event.target.closest('.hw-type-drop-target');
+
+            if (draggedItem5 && droppedTarget && !droppedTarget.classList.contains('correct')) {
+                droppedTarget.classList.remove('hovered');
+
+                const draggedHardwareType = draggedItem5.dataset.hardwareType;
+                const correctHardwareTypeForTarget = droppedTarget.dataset.correctHardwareType;
+
+                if (draggedHardwareType === correctHardwareTypeForTarget) {
+                    // Correct match
+                    droppedTarget.classList.add('correct');
+                    // Find the original description and add the type
+                    const originalDescription = game5Types.find(t => t.type === droppedTarget.dataset.correctHardwareType).category;
+                    droppedTarget.textContent = `${draggedHardwareType}: ${originalDescription}`;
+                    draggedItem5.remove(); // Remove the draggable item
+                    correctMatches5++;
+                    displayMessage(gameMessage5, 'Correct! Type matched!', 'bg-green-100 text-green-700 border-green-400');
+
+                    if (correctMatches5 === totalComponents5) {
+                        displayMessage(gameMessage5, 'Awesome! You classified all hardware types!', 'bg-blue-100 text-blue-700 border-blue-400');
+                    }
+                } else {
+                    // Incorrect match
+                    droppedTarget.classList.add('incorrect');
+                    setTimeout(() => {
+                        droppedTarget.classList.remove('incorrect');
+                    }, 1000);
+                    displayMessage(gameMessage5, 'Incorrect. Try again!', 'bg-red-100 text-red-700 border-red-400');
+                }
+            }
+            if (draggedItem5) {
+                draggedItem5.classList.remove('opacity-50', 'border-purple-500');
+            }
+            draggedItem5 = null;
+        }
+
+
+        /**
+         * Displays a temporary message in the specified game message area.
+         * @param {HTMLElement} messageElement The HTML element to display the message in.
+         * @param {string} message The message to display.
+         * @param {string} className Tailwind classes for styling the message.
+         */
+        function displayMessage(messageElement, message, className) {
+            messageElement.textContent = message;
+            messageElement.className = `text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-100 ${className} border`;
+            setTimeout(() => {
+                messageElement.classList.add('opacity-0');
+                setTimeout(() => {
+                    messageElement.textContent = '';
+                    messageElement.className = `text-center text-lg font-medium mt-4 sm:mt-0 px-4 py-2 rounded-md transition-opacity duration-300 opacity-0`;
+                }, 300);
+            }, 2000);
+        }
+
+        // Event listeners for reset buttons
+        resetButton1.addEventListener('click', initGame1);
+        resetButton2.addEventListener('click', initGame2);
+        resetButton3.addEventListener('click', initGame3);
+        resetButton4.addEventListener('click', initGame4);
+        resetButton5.addEventListener('click', initGame5); // New reset button for Game 5
+
+        // Initialize all games when the page loads
+        window.onload = function() {
+            initGame1();
+            initGame2();
+            initGame3();
+            initGame4();
+            initGame5(); // Initialize Game 5
+        };
+    </script>
+</body>
+</html>
